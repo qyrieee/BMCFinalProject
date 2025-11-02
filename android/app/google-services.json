@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "139963798179",
+    "project_id": "continuetodolistapp-b0fb1",
+    "storage_bucket": "continuetodolistapp-b0fb1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139963798179:android:d4a06a810e3ab227aba516",
+        "android_client_info": {
+          "package_name": "com.example.ecommerce_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLli-9kdp-we9ko8xmngm9IXURnjtGi3U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139963798179:android:8456fff831b22b1faba516",
+        "android_client_info": {
+          "package_name": "com.example.my_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLli-9kdp-we9ko8xmngm9IXURnjtGi3U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
