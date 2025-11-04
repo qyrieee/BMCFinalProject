@@ -1,4 +1,4 @@
- import 'package:ecommerce_app/screens/home_screen.dart';
+ import 'package:ecommerce_app/screens/vegetable_store_screen.dart';
 import 'package:ecommerce_app/screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +25,7 @@ class AuthWrapper extends StatelessWidget {
 
         // 5. If the snapshot has data, a user is logged in
         if (snapshot.hasData) {
-          return const HomeScreen(); // Show the home screen
+          return const VegetableStoreScreen(); // Show the home screen
         }
 
         // 6. If the snapshot has no data, no user is logged in

@@ -9,7 +9,6 @@ import 'firebase_options.dart';
 //3. Import the flutter_native_splash
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:ecommerce_app/screens/login_screen.dart';
-import 'package:ecommerce_app/screens/signup_screen.dart';
 
 
 
