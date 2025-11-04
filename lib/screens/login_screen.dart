@@ -36,18 +36,20 @@ class _LoginScreenState extends State<LoginScreen> {
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
-        // Navigation will be handled by the AuthWrapper
       } on FirebaseAuthException catch (e) {
         setState(() {
           switch (e.code) {
+            case 'invalid-email':
+              _errorMessage = 'The email address is not valid.';
+              break;
+            case 'user-disabled':
+              _errorMessage = 'This user has been disabled.';
+              break;
             case 'user-not-found':
               _errorMessage = 'No user found for that email.';
               break;
             case 'wrong-password':
               _errorMessage = 'Wrong password provided for that user.';
-              break;
-            case 'invalid-email':
-              _errorMessage = 'The email address is not valid.';
               break;
             default:
               _errorMessage = 'An unknown error occurred. Please try again.';

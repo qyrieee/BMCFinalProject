@@ -36,17 +36,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
-        // Navigation will be handled by the AuthWrapper
       } on FirebaseAuthException catch (e) {
         setState(() {
-          if (e.code == 'weak-password') {
-            _errorMessage = 'The password provided is too weak.';
-          } else if (e.code == 'email-already-in-use') {
-            _errorMessage = 'An account already exists for that email.';
-          } else if (e.code == 'invalid-email') {
-            _errorMessage = 'The email address is not valid.';
-          } else {
-            _errorMessage = 'An unknown error occurred. Please try again.';
+          switch (e.code) {
+            case 'email-already-in-use':
+              _errorMessage = 'An account already exists for that email.';
+              break;
+            case 'invalid-email':
+              _errorMessage = 'The email address is not valid.';
+              break;
+            case 'operation-not-allowed':
+              _errorMessage = 'Email/password accounts are not enabled.';
+              break;
+            case 'weak-password':
+              _errorMessage = 'The password provided is too weak.';
+              break;
+            default:
+              _errorMessage = 'An unknown error occurred. Please try again.';
           }
         });
       } finally {

@@ -1,4 +1,4 @@
- import 'package:ecommerce_app/screens/vegetable_store_screen.dart';
+import 'package:ecommerce_app/screens/vegetable_store_screen.dart';
 import 'package:ecommerce_app/screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,28 +8,20 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. We use a StreamBuilder to listen for auth changes
     return StreamBuilder<User?>(
-      // 2. This is the stream from Firebase
       stream: FirebaseAuth.instance.authStateChanges(),
-
-      // 3. The builder runs every time the auth state changes
       builder: (context, snapshot) {
-
-        // 4. If the snapshot is still loading, show a spinner
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // 5. If the snapshot has data, a user is logged in
         if (snapshot.hasData) {
-          return const VegetableStoreScreen(); // Show the home screen
+          return const VegetableStoreScreen();
         }
 
-        // 6. If the snapshot has no data, no user is logged in
-        return const LoginScreen(); // Show the login screen
+        return const LoginScreen();
       },
     );
   }
