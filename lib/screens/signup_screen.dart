@@ -75,7 +75,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     // 1. A Scaffold provides the basic screen structure
