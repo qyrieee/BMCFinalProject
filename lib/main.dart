@@ -9,10 +9,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart'; // 1. ADD THIS IMPORT
 
 // 2. --- ADD OUR NEW APP COLOR PALETTE ---
-const Color kRichBlack = Color(0xFF1D1F24); // A dark, rich black
-const Color kBrown = Color(0xFF8B5E3C);      // Our main "coffee" brown
-const Color kLightBrown = Color(0xFFD2B48C);  // A lighter tan/beige
-const Color kOffWhite = Color(0xFFF8F4F0);    // A warm, off-white background
+const Color kDarkGreen = Color(0xFF1E4D2B);      // A dark, rich green
+const Color kPrimaryGreen = Color(0xFF2E7D32);  // Our main vegetable green
+const Color kLightGreen = Color(0xFFA5D6A7);    // A lighter accent green
+const Color kOffWhite = Color(0xFFF1F8E9);      // A very light green/off-white background
 // --- END OF COLOR PALETTE ---
 
 void main() async {
@@ -39,11 +39,11 @@ class MyApp extends StatelessWidget {
       title: 'eCommerce App',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: kBrown,
+          seedColor: kPrimaryGreen,
           brightness: Brightness.light,
-          primary: kBrown,
+          primary: kPrimaryGreen,
           onPrimary: Colors.white,
-          secondary: kLightBrown,
+          secondary: kLightGreen,
           background: kOffWhite,
         ),
         useMaterial3: true,
@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: kBrown,
+            backgroundColor: kPrimaryGreen,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
             shape: RoundedRectangleBorder(
@@ -66,10 +66,10 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Colors.grey[400]!),
           ),
-          labelStyle: TextStyle(color: kBrown.withOpacity(0.8)),
+          labelStyle: TextStyle(color: kPrimaryGreen.withOpacity(0.8)),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: kBrown, width: 2.0),
+            borderSide: const BorderSide(color: kPrimaryGreen, width: 2.0),
           ),
         ),
         cardTheme: CardThemeData(
@@ -82,7 +82,7 @@ class MyApp extends StatelessWidget {
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
-          foregroundColor: kRichBlack,
+          foregroundColor: kDarkGreen,
           elevation: 0,
           centerTitle: true,
         ),

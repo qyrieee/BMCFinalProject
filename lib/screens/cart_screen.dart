@@ -79,7 +79,7 @@ class CartScreen extends StatelessWidget {
                       const Text('Total:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       Text(
                         '₱${cart.totalPriceWithVat.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
                       ),
                     ],
                   ),

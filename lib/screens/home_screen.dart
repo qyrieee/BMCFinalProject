@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Image.asset(
-          'assets/images/app_logo.png', // 3. The path to your logo
+          'assets/image/app_logo.png', // 3. The path to your logo
           height: 40, // 4. Set a fixed height
         ),
         actions: [
