@@ -17,6 +17,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // 1. This is the line we're changing
+
   runApp(
     // 2. We wrap our app in the provider
     ChangeNotifierProvider(
