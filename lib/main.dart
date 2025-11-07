@@ -1,34 +1,31 @@
-import 'package:flutter/material.dart';
+import 'package:ecommerce_app/providers/cart_provider.dart';
+import 'package:ecommerce_app/screens/auth_wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-
-// 1. Import the native splash package
+import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'screens/auth_wrapper.dart'; // 1. Import AuthWrapper
-import 'package:ecommerce_app/providers/cart_provider.dart'; // 1. ADD THIS
-import 'package:provider/provider.dart'; // 2. ADD THIS
+import 'package:provider/provider.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart'; // 1. ADD THIS IMPORT
+
+// 2. --- ADD OUR NEW APP COLOR PALETTE ---
+const Color kRichBlack = Color(0xFF1D1F24); // A dark, rich black
+const Color kBrown = Color(0xFF8B5E3C);      // Our main "coffee" brown
+const Color kLightBrown = Color(0xFFD2B48C);  // A lighter tan/beige
+const Color kOffWhite = Color(0xFFF8F4F0);    // A warm, off-white background
+// --- END OF COLOR PALETTE ---
 
 void main() async {
-  // 1. Preserve the splash screen
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-
-  // 2. Initialize Firebase (from Module 1)
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // 1. This is the line we're changing
-
+  final cartProvider = CartProvider();
   runApp(
-    // 2. We wrap our app in the provider
-    ChangeNotifierProvider(
-      // 3. This "creates" one instance of our cart
-      create: (context) => CartProvider(),
-      // 4. The child is our normal app
+    ChangeNotifierProvider.value(
+      value: cartProvider,
       child: const MyApp(),
     ),
   );
-
-  // 4. Remove the splash screen after app is ready
   FlutterNativeSplash.remove();
 }
 
@@ -37,13 +34,59 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. MaterialApp is the root of your app
     return MaterialApp(
-      // 2. This removes the "Debug" banner
       debugShowCheckedModeBanner: false,
       title: 'eCommerce App',
-      theme: ThemeData(primarySwatch: Colors.deepPurple),
-      // 3. A simple placeholder for our home screen
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: kBrown,
+          brightness: Brightness.light,
+          primary: kBrown,
+          onPrimary: Colors.white,
+          secondary: kLightBrown,
+          background: kOffWhite,
+        ),
+        useMaterial3: true,
+        scaffoldBackgroundColor: kOffWhite,
+        textTheme: GoogleFonts.latoTextTheme(
+          Theme.of(context).textTheme,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: kBrown,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[400]!),
+          ),
+          labelStyle: TextStyle(color: kBrown.withOpacity(0.8)),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: kBrown, width: 2.0),
+          ),
+        ),
+        cardTheme: CardThemeData(
+          elevation: 1,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          clipBehavior: Clip.antiAlias,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: kRichBlack,
+          elevation: 0,
+          centerTitle: true,
+        ),
+      ),
       home: const AuthWrapper(),
     );
   }

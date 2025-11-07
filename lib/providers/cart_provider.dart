@@ -1,29 +1,28 @@
-import 'dart:async'; // 1. ADD THIS (for StreamSubscription)
+import 'dart:async'; 
 
-import 'package:flutter/foundation.dart'; // Gives us ChangeNotifier
-import 'package:firebase_auth/firebase_auth.dart'; // 2. ADD THIS
-import 'package:cloud_firestore/cloud_firestore.dart'; // 3. ADD THIS
+import 'package:flutter/foundation.dart'; 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; 
 
-// 1. A simple class to hold the data for an item in the cart
 class CartItem {
-  final String id; // The unique product ID
+  final String id; 
   final String name;
   final double price;
-  int quantity; // Quantity can change, so it's not final
+  int quantity; 
 
   CartItem({
     required this.id,
     required this.name,
     required this.price,
-    this.quantity = 1, // Default to 1 when added
+    this.quantity = 1, 
   });
 
-  // 1. ADD THIS: A method to convert our CartItem object into a Map
+ 
   Map<String, dynamic> toJson() {
     return {'id': id, 'name': name, 'price': price, 'quantity': quantity};
   }
 
-  // 2. ADD THIS: A factory constructor to create a CartItem from a Map
+ 
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
       id: json['id'],
@@ -34,55 +33,27 @@ class CartItem {
   }
 }
 
-// 1. The CartProvider class "mixes in" ChangeNotifier
+
 class CartProvider with ChangeNotifier {
-  // 2. This is the private list of items.
-  //    No one outside this class can access it directly.
+  
   List<CartItem> _items = [];
 
-  // 3. A public "getter" to let widgets *read* the list of items
+  
   List<CartItem> get items => _items;
 
-  // 5. ADD THESE: New properties for auth and database
-  String? _userId; // Will hold the current user's ID
-  StreamSubscription? _authSubscription; // To listen to auth changes
+ 
+  String? _userId; 
+  StreamSubscription? _authSubscription; 
 
-  // 6. ADD THESE: Get Firebase instances
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // 7. ADD THIS CONSTRUCTOR
   CartProvider() {
-    print('CartProvider initialized');
-    // Listen to authentication changes
-    _authSubscription = _auth.authStateChanges().listen((User? user) {
-      if (user == null) {
-        // User is logged out
-        print('User logged out, clearing cart.');
-        _userId = null;
-        _items = []; // Clear local cart
-      } else {
-        // User is logged in
-        print('User logged in: ${user.uid}. Fetching cart...');
-        _userId = user.uid;
-        _fetchCart(); // Load their cart from Firestore
-      }
-      // Notify listeners to update UI (e.g., clear cart badge on logout)
-      notifyListeners();
-    });
+    initializeAuthListener();
+    print('CartProvider created and auth listener initialized.');
   }
 
-  // 4. A public "getter" to calculate the total number of items
-  int get itemCount {
-    int total = 0;
-    for (var item in _items) {
-      total += item.quantity;
-    }
-    return total;
-  }
-
-  // 5. A public "getter" to calculate the total price
-  double get totalPrice {
+  double get subtotal {
     double total = 0.0;
     for (var item in _items) {
       total += (item.price * item.quantity);
@@ -90,83 +61,114 @@ class CartProvider with ChangeNotifier {
     return total;
   }
 
-  // 12. ADD THIS METHOD (or update it if it exists)
+ 
+  double get vat {
+    return subtotal * 0.12; 
+  }
+
+  
+  double get totalPriceWithVat {
+    return subtotal + vat;
+  }
+
+ 
+  int get itemCount {
+    
+    return _items.fold(0, (total, item) => total + item.quantity);
+  }
+
+  
   @override
   void dispose() {
-    _authSubscription?.cancel(); // Cancel the auth listener
+    _authSubscription?.cancel(); 
     super.dispose();
   }
 
-  // 6. The main logic: "Add Item to Cart"
-  void addItem(String id, String name, double price) {
-    // 7. Check if the item is already in the cart
+ 
+  void initializeAuthListener() {
+    print('CartProvider auth listener initialized');
+    _authSubscription = _auth.authStateChanges().listen((User? user) {
+      if (user == null) {
+        print('User logged out, clearing cart.');
+        _userId = null;
+        _items = [];
+      } else {
+        print('User logged in: ${user.uid}. Fetching cart...');
+        _userId = user.uid;
+        _fetchCart();
+      }
+      notifyListeners();
+    });
+  }
+
+  void addItem(String id, String name, double price, int quantity) {
+   
     var index = _items.indexWhere((item) => item.id == id);
 
     if (index != -1) {
-      // 8. If YES: just increase the quantity
-      _items[index].quantity++;
+     
+      _items[index].quantity += quantity;
     } else {
-      // 9. If NO: add it to the list as a new item
-      _items.add(CartItem(id: id, name: name, price: price));
+      
+      _items.add(CartItem(
+        id: id,
+        name: name,
+        price: price,
+        quantity: quantity, 
+      ));
     }
 
-    _saveCart(); // 10. ADD THIS LINE
-    // 10. CRITICAL: This tells all "listening" widgets to rebuild!
+    _saveCart(); 
+    notifyListeners(); 
+  }
+
+ 
+  void removeItem(String id) {
+    _items.removeWhere((item) => item.id == id);
+    _saveCart();
     notifyListeners();
   }
 
-  // 11. The "Remove Item from Cart" logic
-  void removeItem(String id) {
-    _items.removeWhere((item) => item.id == id);
-    _saveCart(); // 11. ADD THIS LINE
-    notifyListeners(); // Tell widgets to rebuild
-  }
-
-  // 1. ADD THIS: Creates an order in the 'orders' collection
   Future<void> placeOrder() async {
-    // 2. Check if we have a user and items
     if (_userId == null || _items.isEmpty) {
-      // Don't place an order if cart is empty or user is logged out
       throw Exception('Cart is empty or user is not logged in.');
     }
 
     try {
-      // 3. Convert our List<CartItem> to a List<Map> using toJson()
-      final List<Map<String, dynamic>> cartData = _items
-          .map((item) => item.toJson())
-          .toList();
+      final List<Map<String, dynamic>> cartData =
+          _items.map((item) => item.toJson()).toList();
 
-      // 4. Get total price and item count from our getters
-      final double total = totalPrice;
+      final double sub = subtotal;
+      final double v = vat;
+      final double total = totalPriceWithVat;
       final int count = itemCount;
 
-      // 5. Create a new document in the 'orders' collection
       await _firestore.collection('orders').add({
         'userId': _userId,
-        'items': cartData, // Our list of item maps
-        'totalPrice': total,
+        'items': cartData,
+        'subtotal': sub, 
+        'vat': v, 
+        'totalPrice': total, 
         'itemCount': count,
-        'status': 'Pending', // 6. IMPORTANT: For admin verification
-        'createdAt': FieldValue.serverTimestamp(), // For sorting
+        'status': 'Pending',
+        'createdAt': FieldValue.serverTimestamp(),
       });
+      
 
-      // 7. Note: We DO NOT clear the cart here.
-      //    We'll call clearCart() separately from the UI after this succeeds.
     } catch (e) {
       print('Error placing order: $e');
-      // 8. Re-throw the error so the UI can catch it
       throw e;
     }
-  } // 9. ADD THIS: Clears the cart locally AND in Firestore
+  }
 
   Future<void> clearCart() async {
-    // 10. Clear the local list
+    
     _items = [];
 
-    // 11. If logged in, clear the Firestore cart as well
+    
     if (_userId != null) {
       try {
-        // 12. Set the 'cartItems' field in their cart doc to an empty list
+        
         await _firestore.collection('userCarts').doc(_userId).set({
           'cartItems': [],
         });
@@ -176,48 +178,46 @@ class CartProvider with ChangeNotifier {
       }
     }
 
-    // 13. Notify all listeners (this will clear the UI)
+    
     notifyListeners();
   }
 
   Future<void> _fetchCart() async {
-    if (_userId == null) return; // Not logged in, nothing to fetch
+    if (_userId == null) return; 
 
     try {
-      // 1. Get the user's specific cart document
+     
       final doc = await _firestore.collection('userCarts').doc(_userId).get();
 
       if (doc.exists && doc.data()!['cartItems'] != null) {
-        // 2. Get the list of items from the document
+        
         final List<dynamic> cartData = doc.data()!['cartItems'];
 
-        // 3. Convert that list of Maps into our List<CartItem>
-        //    (This is why we made CartItem.fromJson!)
+        
         _items = cartData.map((item) => CartItem.fromJson(item)).toList();
         print('Cart fetched successfully: ${_items.length} items');
       } else {
-        // 4. The user has no saved cart, start with an empty one
+       
         _items = [];
       }
     } catch (e) {
       print('Error fetching cart: $e');
-      _items = []; // On error, default to an empty cart
+      _items = []; 
     }
-    notifyListeners(); // Update the UI
+    notifyListeners(); 
   }
 
-  // 9. ADD THIS: Saves the current local cart to Firestore
+  
   Future<void> _saveCart() async {
-    if (_userId == null) return; // Not logged in, nowhere to save
+    if (_userId == null) return;
 
     try {
-      // 1. Convert our List<CartItem> into a List<Map>
-      //    (This is why we made toJson()!)
+      
       final List<Map<String, dynamic>> cartData = _items
           .map((item) => item.toJson())
           .toList();
 
-      // 2. Find the user's document and set the 'cartItems' field
+     
       await _firestore.collection('userCarts').doc(_userId).set({
         'cartItems': cartData,
       });

@@ -9,6 +9,10 @@ import 'package:ecommerce_app/providers/cart_provider.dart'; // 1. ADD THIS
 import 'package:ecommerce_app/screens/cart_screen.dart'; // 2. ADD THIS
 import 'package:provider/provider.dart'; // 3. ADD THIS
 import 'package:ecommerce_app/screens/order_history_screen.dart'; // 1. ADD THIS
+import 'package:ecommerce_app/screens/profile_screen.dart'; // 1. ADD THIS
+import 'package:ecommerce_app/widgets/notification_icon.dart'; // 1. ADD THIS
+import 'package:ecommerce_app/screens/chat_screen.dart';
+
 
 // Part 2: Widget Definition
 class HomeScreen extends StatefulWidget {
@@ -25,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 2. Get the current user from Firebase Auth
   final User? _currentUser = FirebaseAuth.instance.currentUser;
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
 
   // 3. This function runs ONCE when the screen is first created
   @override
@@ -59,40 +65,25 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // 10. Move the _signOut function inside this class
-  Future<void> _signOut() async {
-    try {
-      await FirebaseAuth.instance.signOut();
-    } catch (e) {
-      print('Error signing out: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // 1. Use the _currentUser variable we defined
-        title: Text(
-          _currentUser != null ? 'Welcome, ${_currentUser!.email}' : 'Home',
+        title: Image.asset(
+          'assets/images/app_logo.png', // 3. The path to your logo
+          height: 40, // 4. Set a fixed height
         ),
         actions: [
-          // 1. --- ADD THIS NEW WIDGET ---
-          // This is a special, efficient way to use Provider
+            
+          // 1. Cart Icon (Unchanged)
           Consumer<CartProvider>(
-            // 2. The "builder" function rebuilds *only* the icon
             builder: (context, cart, child) {
-              // 3. The "Badge" widget adds a small label
               return Badge(
-                // 4. Get the count from the provider
                 label: Text(cart.itemCount.toString()),
-                // 5. Only show the badge if the count is > 0
                 isLabelVisible: cart.itemCount > 0,
-                // 6. This is the child (our icon button)
                 child: IconButton(
                   icon: const Icon(Icons.shopping_cart),
                   onPressed: () {
-                    // 7. Navigate to the CartScreen
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => const CartScreen(),
@@ -104,9 +95,13 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
 
-          // 2. --- ADD THIS NEW BUTTON ---
+          // 2. --- ADD OUR NEW WIDGET ---
+          const NotificationIcon(),
+          // --- END OF NEW WIDGET ---
+            
+          // 3. "My Orders" Icon (Unchanged)
           IconButton(
-            icon: const Icon(Icons.receipt_long), // A "receipt" icon
+            icon: const Icon(Icons.receipt_long),
             tooltip: 'My Orders',
             onPressed: () {
               Navigator.of(context).push(
@@ -116,16 +111,13 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-
-          // 2. --- THIS IS THE MAGIC ---
-          //    This is a "collection-if". The IconButton will only
-          //    be built IF _userRole is equal to 'admin'.
+            
+          // 4. Admin Icon (Unchanged)
           if (_userRole == 'admin')
             IconButton(
               icon: const Icon(Icons.admin_panel_settings),
               tooltip: 'Admin Panel',
               onPressed: () {
-                // 3. This is why we imported admin_panel_screen.dart
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const AdminPanelScreen(),
@@ -133,16 +125,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-
-          // 4. The logout button (always visible)
+            
+          // 5. Profile Icon (Unchanged)
           IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
-            onPressed: _signOut, // 5. Call our _signOut function
+            icon: const Icon(Icons.person_outline),
+            tooltip: 'Profile',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ProfileScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),
-      // 1. REPLACE THE OLD "body: Center(...)" WITH THIS:
+      // ... (body is the same)
       body: StreamBuilder<QuerySnapshot>(
         // 2. This is our query to Firestore
         stream: FirebaseFirestore.instance
@@ -215,6 +213,89 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
+      floatingActionButton: _userRole == 'user'
+          ? StreamBuilder<DocumentSnapshot>( // 2. A new StreamBuilder
+
+              // 3. Listen to *this user's* chat document
+
+              stream: _firestore.collection('chats').doc(_currentUser!.uid).snapshots(),
+
+              builder: (context, snapshot) {
+
+                
+
+                int unreadCount = 0;
+
+                // 4. Check if the doc exists and has our count field
+
+                if (snapshot.hasData && snapshot.data!.exists) {
+
+                  // Ensure data is not null before casting
+
+                  final data = snapshot.data!.data();
+
+                  if (data != null) {
+
+                    unreadCount = (data as Map<String, dynamic>)['unreadByUserCount'] ?? 0;
+
+                  }
+
+                }
+
+       
+
+                // 5. --- THE FIX for "trailing not defined" ---
+
+                //    We wrap the FAB in the Badge widget
+
+                return Badge(
+
+                  // 6. Show the count in the badge
+
+                  label: Text('$unreadCount'),
+
+                  // 7. Only show the badge if the count is > 0
+
+                  isLabelVisible: unreadCount > 0,
+
+                  // 8. The FAB is now the *child* of the Badge
+
+                  child: FloatingActionButton.extended(
+
+                    icon: const Icon(Icons.support_agent),
+
+                    label: const Text('Contact Admin'),
+
+                    onPressed: () {
+
+                      Navigator.of(context).push(
+
+                        MaterialPageRoute(
+
+                          builder: (context) => ChatScreen(
+
+                            chatRoomId: _currentUser!.uid,
+
+                          ),
+
+                        ),
+
+                      );
+
+                    },
+
+                  ),
+
+                );
+
+                // --- END OF FIX ---
+
+              },
+
+            )
+
+          : null, // 9. If admin, don't show the FAB
+
     );
   }
 }
