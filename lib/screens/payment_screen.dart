@@ -90,10 +90,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
             Text(
               formattedTotal,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple),
+                  color: Theme.of(context).colorScheme.primary),
             ),
             const SizedBox(height: 24),
             const Divider(),

@@ -106,7 +106,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                   icon: const Icon(Icons.list_alt),
                   label: const Text('Manage All Orders'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo, // A different color
+                    backgroundColor: Theme.of(context).colorScheme.secondary, // A different color
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     textStyle: const TextStyle(fontSize: 16),

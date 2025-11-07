@@ -162,13 +162,13 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
                       ),
                     ),
                     backgroundColor: status == 'Pending'
-                        ? Colors.orange
+                        ? Colors.amber[800] // A deep orange, like a carrot
                         : status == 'Processing'
-                        ? Colors.blue
+                        ? const Color(0xFF2E7D32) // kPrimaryGreen
                         : status == 'Shipped'
-                        ? Colors.deepPurple
+                        ? const Color(0xFF1E4D2B) // kDarkGreen
                         : status == 'Delivered'
-                        ? Colors.green
+                        ? Colors.green[800] // A very dark, successful green
                         : Colors.red,
                   ),
 

@@ -95,7 +95,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
-                      color: Colors.deepPurple,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 16),

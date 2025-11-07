@@ -78,9 +78,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     return ListTile(
                       // 8. Show a "new" icon if it was unread
                       leading: wasUnread
-                          ? const Icon(
+                          ? Icon(
                               Icons.circle,
-                              color: Colors.deepPurple,
+                              color: Theme.of(context).colorScheme.primary,
                               size: 12,
                             )
                           : const Icon(

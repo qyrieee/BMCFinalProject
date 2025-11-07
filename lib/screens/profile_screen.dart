@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -49,9 +48,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // 4. Show success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password changed successfully!'),
-          backgroundColor: Colors.green,
+        SnackBar(
+          content: const Text('Password changed successfully!'),
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       );
       // Clear the fields

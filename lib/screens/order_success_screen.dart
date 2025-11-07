@@ -19,9 +19,9 @@ class OrderSuccessScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // 2. A nice success icon
-              const Icon(
+              Icon(
                 Icons.check_circle_outline,
-                color: Colors.green,
+                color: Theme.of(context).colorScheme.primary,
                 size: 100,
               ),
               const SizedBox(height: 20),
